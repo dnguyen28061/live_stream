@@ -11,6 +11,8 @@ const app = express();
 const httpServer = http.createServer(app);
 const port = 3000;
 
+let reactionsCount = 0; // In-memory reactions counter
+
 // GraphQL Schema
 const typeDefs = `#graphql
   type Stream {
@@ -53,6 +55,25 @@ app.get('/streams', (req, res) => {
 
 app.post('/streams', (req, res) => {
     res.json({ status: 'ok', message: 'REST API is not yet implemented' });
+});
+
+// New endpoint to simulate sending UDP from client
+app.post('/udp-send', (req, res) => {
+    const message = Buffer.from('like'); // Simulate a 'like' message
+    udpServer.send(message, udpPort, 'localhost', (err) => {
+        if (err) {
+            console.error('UDP send error:', err);
+            res.status(500).json({ status: 'error', message: 'Failed to send UDP message' });
+        } else {
+            console.log('UDP message sent by server (simulated client).');
+            res.json({ status: 'ok', message: 'UDP message simulated' });
+        }
+    });
+});
+
+// New endpoint to get reactions count
+app.get('/reactions', (req, res) => {
+    res.json({ count: reactionsCount });
 });
 
 // Stubbed SSE Endpoint
@@ -98,6 +119,8 @@ udpServer.on('error', (err) => {
 
 udpServer.on('message', (msg, rinfo) => {
     console.log(`UDP server received ${msg} from ${rinfo.address}:${rinfo.port}`);
+    reactionsCount++;
+    console.log(`Reactions count: ${reactionsCount}`);
 });
 
 udpServer.on('listening', () => {

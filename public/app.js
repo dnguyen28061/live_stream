@@ -51,5 +51,33 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // UDP Reactions
     const likesCount = document.getElementById('likes-count');
-    // TODO: Listen for UDP updates (this will be simulated on the client)
+    const sendUdpReactionButton = document.getElementById('send-udp-reaction');
+
+    sendUdpReactionButton.addEventListener('click', async () => {
+        try {
+            const response = await fetch('/udp-send', {
+                method: 'POST',
+            });
+            const data = await response.json();
+            console.log('UDP Send Simulation:', data);
+        } catch (error) {
+            console.error('Error sending UDP reaction:', error);
+        }
+    });
+
+    const fetchReactions = async () => {
+        try {
+            const response = await fetch('/reactions');
+            const data = await response.json();
+            likesCount.textContent = data.count;
+        } catch (error) {
+            console.error('Error fetching reactions:', error);
+        }
+    };
+
+    // Fetch reactions every 1 second
+    setInterval(fetchReactions, 1000);
+
+    // Initial fetch
+    fetchReactions();
 });
