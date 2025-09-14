@@ -12,6 +12,10 @@ const httpServer = http.createServer(app);
 const port = 3000;
 
 let reactionsCount = 0; // In-memory reactions counter
+const streams = []; // In-memory data store for streams
+
+// Use body-parser for parsing JSON bodies
+app.use(bodyParser.json());
 
 // GraphQL Schema
 const typeDefs = `#graphql
@@ -50,11 +54,18 @@ app.use(express.static('public'));
 
 // Stubbed REST API
 app.get('/streams', (req, res) => {
-    res.json({ status: 'ok', message: 'REST API is not yet implemented' });
+    res.json(streams); // Return the in-memory streams
 });
 
 app.post('/streams', (req, res) => {
-    res.json({ status: 'ok', message: 'REST API is not yet implemented' });
+    const { name } = req.body;
+    if (!name) {
+        return res.status(400).json({ status: 'error', message: 'Stream name is required' });
+    }
+    const newStream = { id: streams.length + 1, name };
+    streams.push(newStream);
+    console.log('REST: New stream created:', newStream);
+    res.status(201).json({ status: 'ok', message: 'Stream created', stream: newStream });
 });
 
 // New endpoint to simulate sending UDP from client

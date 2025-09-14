@@ -1,11 +1,53 @@
 document.addEventListener('DOMContentLoaded', () => {
     // REST API
     const fetchStreamsButton = document.getElementById('fetch-streams');
+    const createStreamButton = document.getElementById('create-stream');
+    const newStreamNameInput = document.getElementById('new-stream-name');
     const streamsList = document.getElementById('streams-list');
 
-    fetchStreamsButton.addEventListener('click', async () => {
-        // TODO: Fetch streams from REST API
+    const fetchAndDisplayStreams = async () => {
+        try {
+            const response = await fetch('/streams');
+            const streams = await response.json();
+            streamsList.innerHTML = ''; // Clear existing list
+            streams.forEach(stream => {
+                const listItem = document.createElement('li');
+                listItem.textContent = `ID: ${stream.id}, Name: ${stream.name}`;
+                streamsList.appendChild(listItem);
+            });
+        } catch (error) {
+            console.error('Error fetching streams:', error);
+        }
+    };
+
+    fetchStreamsButton.addEventListener('click', fetchAndDisplayStreams);
+
+    createStreamButton.addEventListener('click', async () => {
+        const name = newStreamNameInput.value;
+        if (!name) {
+            alert('Please enter a stream name.');
+            return;
+        }
+
+        try {
+            const response = await fetch('/streams', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ name }),
+            });
+            const data = await response.json();
+            console.log('Stream creation response:', data);
+            newStreamNameInput.value = ''; // Clear input
+            fetchAndDisplayStreams(); // Refresh the list
+        } catch (error) {
+            console.error('Error creating stream:', error);
+        }
     });
+
+    // Initial fetch of streams when the page loads
+    fetchAndDisplayStreams();
 
     // SSE Feed
     const sseList = document.getElementById('sse-list');
