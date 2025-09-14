@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Live Stream</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <h1>Live Stream</h1>
+
+    <div id="rest-section">
+        <h2>REST API</h2>
+        <button id="fetch-streams">Fetch Streams</button>
+        <ul id="streams-list"></ul>
+    </div>
+
+    <div id="sse-section">
+        <h2>SSE Feed</h2>
+        <ul id="sse-list"></ul>
+    </div>
+
+    <div id="websocket-section">
+        <h2>WebSocket Alerts</h2>
+        <ul id="websocket-list"></ul>
+    </div>
+
+    <div id="graphql-section">
+        <h2>GraphQL Analytics</h2>
+        <pre id="graphql-data"></pre>
+    </div>
+
+    <div id="udp-section">
+        <h2>UDP Reactions</h2>
+        <p>Likes: <span id="likes-count">0</span></p>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>

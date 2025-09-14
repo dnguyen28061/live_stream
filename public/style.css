@@ -1,0 +1,15 @@
+body {
+    font-family: sans-serif;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1em;
+}
+
+h1, h2 {
+    text-align: center;
+}
+
+div {
+    border: 1px solid #ccc;
+    padding: 1em;
+}
