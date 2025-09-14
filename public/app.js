@@ -51,18 +51,44 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // SSE Feed
     const sseList = document.getElementById('sse-list');
+    const newCommentTextInput = document.getElementById('new-comment-text');
+    const postCommentButton = document.getElementById('post-comment');
     const eventSource = new EventSource('/events');
+
     eventSource.onmessage = (event) => {
+        const comment = JSON.parse(event.data);
         const newItem = document.createElement('li');
-        newItem.textContent = `SSE: ${event.data}`;
+        newItem.textContent = `SSE: ${comment.text} (ID: ${comment.id}) at ${new Date(comment.timestamp).toLocaleTimeString()}`;
         sseList.appendChild(newItem);
-        eventSource.close(); // Close after receiving the initial message
     };
 
     eventSource.onerror = (error) => {
         console.error('SSE Error:', error);
-        eventSource.close();
+        // eventSource.close(); // Do not close on error for continuous stream
     };
+
+    postCommentButton.addEventListener('click', async () => {
+        const text = newCommentTextInput.value;
+        if (!text) {
+            alert('Please enter a comment.');
+            return;
+        }
+
+        try {
+            const response = await fetch('/comments', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ text }),
+            });
+            const data = await response.json();
+            console.log('Comment post response:', data);
+            newCommentTextInput.value = ''; // Clear input
+        } catch (error) {
+            console.error('Error posting comment:', error);
+        }
+    });
 
     // WebSocket Alerts
     const websocketList = document.getElementById('websocket-list');

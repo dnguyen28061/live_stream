@@ -13,6 +13,11 @@ const port = 3000;
 
 let reactionsCount = 0; // In-memory reactions counter
 const streams = []; // In-memory data store for streams
+const comments = []; // In-memory data store for comments
+
+// Event emitter for real-time updates
+import { EventEmitter } from 'events';
+const eventEmitter = new EventEmitter();
 
 // Use body-parser for parsing JSON bodies
 app.use(bodyParser.json());
@@ -87,18 +92,51 @@ app.get('/reactions', (req, res) => {
     res.json({ count: reactionsCount });
 });
 
-// Stubbed SSE Endpoint
+// New endpoint to add comments and broadcast via SSE
+app.post('/comments', (req, res) => {
+    const { text } = req.body;
+    if (!text) {
+        return res.status(400).json({ status: 'error', message: 'Comment text is required' });
+    }
+    const newComment = { id: comments.length + 1, text, timestamp: new Date().toISOString() };
+    comments.push(newComment);
+    eventEmitter.emit('newComment', newComment); // Emit event for SSE clients
+    console.log('SSE: New comment added:', newComment);
+    res.status(201).json({ status: 'ok', message: 'Comment added', comment: newComment });
+});
+
+// SSE Endpoint
 app.get('/events', (req, res) => {
     console.log('SSE: Client connected.');
     res.setHeader('Content-Type', 'text/event-stream');
     res.setHeader('Cache-Control', 'no-cache');
     res.setHeader('Connection', 'keep-alive');
-    const message = 'Connection established';
-    res.write(`data: ${message}\n\n`);
-    console.log(`SSE: Sent event: ${message}`);
-    res.end(); // Close the connection after sending one event
-    console.log('SSE: Connection closed.');
+
+    // Send existing comments on connection
+    comments.forEach(comment => {
+        res.write(`data: ${JSON.stringify(comment)}
+
+`);
+    });
+
+    // Function to send new comments
+    const sendNewComment = (comment) => {
+        res.write(`data: ${JSON.stringify(comment)}
+
+`);
+        console.log(`SSE: Sent new comment: ${JSON.stringify(comment)}`);
+    };
+
+    // Listen for new comments and send them to this client
+    eventEmitter.on('newComment', sendNewComment);
+
+    // Handle client disconnection
+    req.on('close', () => {
+        eventEmitter.removeListener('newComment', sendNewComment);
+        console.log('SSE: Client disconnected.');
+    });
 });
+
 
 // Stubbed WebSocket Server
 const wss = new WebSocketServer({ server: httpServer });
