@@ -24,7 +24,26 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // WebSocket Alerts
     const websocketList = document.getElementById('websocket-list');
-    // TODO: Connect to WebSocket server
+    const ws = new WebSocket(`ws://localhost:${location.port}`);
+
+    ws.onopen = () => {
+        console.log('WebSocket: Connected to server.');
+        ws.send('Hello from client!'); // Send a test message
+    };
+
+    ws.onmessage = (event) => {
+        const newItem = document.createElement('li');
+        newItem.textContent = `WebSocket: ${event.data}`;
+        websocketList.appendChild(newItem);
+    };
+
+    ws.onclose = () => {
+        console.log('WebSocket: Disconnected from server.');
+    };
+
+    ws.onerror = (error) => {
+        console.error('WebSocket: Error:', error);
+    };
 
     // GraphQL Analytics
     const graphqlData = document.getElementById('graphql-data');

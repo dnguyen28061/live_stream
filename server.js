@@ -4,6 +4,8 @@ import { startStandaloneServer } from '@apollo/server/standalone';
 import http from 'http';
 import cors from 'cors';
 import bodyParser from 'body-parser';
+import { WebSocketServer } from 'ws';
+import dgram from 'dgram';
 
 const app = express();
 const httpServer = http.createServer(app);
@@ -65,6 +67,45 @@ app.get('/events', (req, res) => {
     res.end(); // Close the connection after sending one event
     console.log('SSE: Connection closed.');
 });
+
+// Stubbed WebSocket Server
+const wss = new WebSocketServer({ server: httpServer });
+
+wss.on('connection', ws => {
+    console.log('WebSocket: Client connected.');
+
+    ws.on('message', message => {
+        console.log(`WebSocket: Received message: ${message}`);
+    });
+
+    ws.on('close', () => {
+        console.log('WebSocket: Client disconnected.');
+    });
+
+    ws.on('error', error => {
+        console.error('WebSocket: Error:', error);
+    });
+});
+
+// Stubbed UDP Socket
+const udpPort = 4001; // Choose a different port for UDP
+const udpServer = dgram.createSocket('udp4');
+
+udpServer.on('error', (err) => {
+    console.error(`UDP server error:\n${err.stack}`);
+    udpServer.close();
+});
+
+udpServer.on('message', (msg, rinfo) => {
+    console.log(`UDP server received ${msg} from ${rinfo.address}:${rinfo.port}`);
+});
+
+udpServer.on('listening', () => {
+    const address = udpServer.address();
+    console.log(`UDP server listening ${address.address}:${address.port}`);
+});
+
+udpServer.bind(udpPort);
 
 httpServer.listen(port, () => {
     console.log(`Server listening at http://localhost:${port}`);
