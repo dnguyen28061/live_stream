@@ -53,6 +53,19 @@ app.post('/streams', (req, res) => {
     res.json({ status: 'ok', message: 'REST API is not yet implemented' });
 });
 
+// Stubbed SSE Endpoint
+app.get('/events', (req, res) => {
+    console.log('SSE: Client connected.');
+    res.setHeader('Content-Type', 'text/event-stream');
+    res.setHeader('Cache-Control', 'no-cache');
+    res.setHeader('Connection', 'keep-alive');
+    const message = 'Connection established';
+    res.write(`data: ${message}\n\n`);
+    console.log(`SSE: Sent event: ${message}`);
+    res.end(); // Close the connection after sending one event
+    console.log('SSE: Connection closed.');
+});
+
 httpServer.listen(port, () => {
     console.log(`Server listening at http://localhost:${port}`);
 });

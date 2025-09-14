@@ -9,7 +9,18 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // SSE Feed
     const sseList = document.getElementById('sse-list');
-    // TODO: Connect to SSE endpoint
+    const eventSource = new EventSource('/events');
+    eventSource.onmessage = (event) => {
+        const newItem = document.createElement('li');
+        newItem.textContent = `SSE: ${event.data}`;
+        sseList.appendChild(newItem);
+        eventSource.close(); // Close after receiving the initial message
+    };
+
+    eventSource.onerror = (error) => {
+        console.error('SSE Error:', error);
+        eventSource.close();
+    };
 
     // WebSocket Alerts
     const websocketList = document.getElementById('websocket-list');
