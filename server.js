@@ -28,17 +28,42 @@ const typeDefs = `#graphql
     id: ID!
     name: String
   }
+
+  type Comment {
+    id: ID!
+    text: String!
+    timestamp: String!
+  }
+
+  type Analytics {
+    totalStreams: Int!
+    totalComments: Int!
+    totalReactions: Int!
+    latestComments: [Comment]
+    activeStreams: [Stream]
+  }
+
   type Query {
     streams: [Stream]
+    comments: [Comment]
+    reactionsCount: Int!
+    analytics: Analytics
   }
 `;
 
 // GraphQL Resolvers
 const resolvers = {
   Query: {
-    streams: () => {
-      throw new Error('GraphQL API is not yet implemented');
-    },
+    streams: () => streams,
+    comments: () => comments,
+    reactionsCount: () => reactionsCount,
+    analytics: () => ({
+      totalStreams: streams.length,
+      totalComments: comments.length,
+      totalReactions: reactionsCount,
+      latestComments: comments.slice(-5).reverse(), // Get last 5 comments, newest first
+      activeStreams: streams, // For now, all created streams are 'active'
+    }),
   },
 };
 

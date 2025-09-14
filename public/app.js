@@ -115,7 +115,54 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // GraphQL Analytics
     const graphqlData = document.getElementById('graphql-data');
-    // TODO: Fetch data from GraphQL API
+
+    const fetchGraphQLAnalytics = async () => {
+        const query = `
+            query {
+                analytics {
+                    totalStreams
+                    totalComments
+                    totalReactions
+                    latestComments {
+                        id
+                        text
+                        timestamp
+                    }
+                    activeStreams {
+                        id
+                        name
+                    }
+                }
+            }
+        `;
+
+        console.log('GraphQL: Sending query:', query);
+        const requestBody = JSON.stringify({ query });
+        console.log('GraphQL: Sending request body:', requestBody);
+
+        try {
+            const response = await fetch('http://localhost:4000/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                },
+                body: requestBody,
+            });
+            const data = await response.json();
+            console.log('GraphQL: Received response data:', data);
+            graphqlData.textContent = JSON.stringify(data, null, 2);
+        } catch (error) {
+            console.error('Error fetching GraphQL analytics:', error);
+            graphqlData.textContent = 'Error fetching GraphQL data.';
+        }
+    };
+
+    // Fetch GraphQL analytics every 2 seconds
+    setInterval(fetchGraphQLAnalytics, 2000);
+
+    // Initial fetch
+    fetchGraphQLAnalytics();
 
     // UDP Reactions
     const likesCount = document.getElementById('likes-count');
