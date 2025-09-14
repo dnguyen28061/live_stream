@@ -13,13 +13,15 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "type": "commonjs",
+  "type": "module",
   "bugs": {
     "url": "https://github.com/dnguyen28061/live_stream/issues"
   },
   "homepage": "https://github.com/dnguyen28061/live_stream#readme",
   "dependencies": {
     "@apollo/server": "^5.0.0",
+    "body-parser": "^2.2.0",
+    "cors": "^2.8.5",
     "express": "^5.1.0",
     "graphql": "^16.11.0",
     "ws": "^8.18.3"
